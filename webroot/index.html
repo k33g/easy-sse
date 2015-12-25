@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vertx, Groovy and SSE</title>
+</head>
+<body>
+    <h1>Vertx, Groovy and SSE</h1>
+    <script>
+        var source = new EventSource('sse');
+        source.addEventListener('message', function(message) {
+            console.log(message.id);
+            console.log(message.data);
+
+        }, false);
+    </script>
+</body>
+</html>
