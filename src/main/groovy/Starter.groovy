@@ -1,4 +1,3 @@
-import io.vertx.core.json.Json
 import io.vertx.groovy.core.Vertx
 import io.vertx.groovy.core.http.HttpServer
 import io.vertx.groovy.core.http.HttpServerResponse
@@ -6,8 +5,11 @@ import io.vertx.groovy.ext.web.Router
 import io.vertx.groovy.ext.web.handler.StaticHandler
 
 import java.time.LocalDateTime
+
 /**
  * completely inspired from http://www.smartjava.org/content/html5-server-sent-events-angularjs-nodejs-and-expressjs
+ * this version is interesting:
+ * https://github.com/cgrotz/vertx-sse/blob/master/src/main/java/de/cgrotz/vertx/sse/SseTestVerticleSimple.java
  */
 
 List<HttpServerResponse> openConnections = []
@@ -23,15 +25,15 @@ vertx.setPeriodic(1000,  {
 
   openConnections.each { res ->
 
-    LocalDateTime date = LocalDateTime.now()
-    String uniqueId = 'id: ' + date.toLocalTime().toString() + '\n'
-    String data = 'data:' + Json.encodePrettily([
-        "temperature": random.nextInt(20),
-        "humidity": random.nextInt(100)
-    ]) +   '\n\n'
+    StringBuilder sb = new StringBuilder('event: message\ndata: ')
+    sb.append('{')
+    sb.append('"when"').append(':"').append(LocalDateTime.now().toLocalTime().toString()).append('",')
+    sb.append('"temperature"').append(':').append(random.nextInt(20)).append(',')
+    sb.append('"humidity"').append(':').append(random.nextInt(100))
+    sb.append('}').append('\n\n')
 
-    res.write(uniqueId)
-    res.write(data)
+    res.write(sb.toString())
+
   }
 });
 
@@ -39,13 +41,13 @@ vertx.setPeriodic(1000,  {
 router.get("/sse").handler({ context ->
 
   HttpServerResponse res = context.response()
+  res.setChunked(true)
 
   // send headers for event-stream connection
-  res.headers().add("Content-Type", "text/event-stream")
+  res.headers().add("Content-Type", "text/event-stream;charset=UTF-8")
   res.headers().add("Cache-Control", "no-cache")
   res.headers().add("Connection", "keep-alive")
 
-  res.setChunked(true)
   res.setStatusCode(200)
   res.write("\n")
 

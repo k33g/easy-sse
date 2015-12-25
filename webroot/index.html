@@ -9,9 +9,7 @@
     <script>
         var source = new EventSource('sse');
         source.addEventListener('message', function(message) {
-            console.log(message.id);
-            console.log(message.data);
-
+            console.log(JSON.parse(message.data));
         }, false);
     </script>
 </body>
