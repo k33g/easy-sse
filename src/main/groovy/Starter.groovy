@@ -1,3 +1,4 @@
+import groovy.json.JsonOutput
 import io.vertx.groovy.core.Vertx
 import io.vertx.groovy.core.http.HttpServer
 import io.vertx.groovy.core.http.HttpServerResponse
@@ -26,11 +27,14 @@ vertx.setPeriodic(1000,  {
   openConnections.each { res ->
 
     StringBuilder sb = new StringBuilder('event: message\ndata: ')
-    sb.append('{')
-    sb.append('"when"').append(':"').append(LocalDateTime.now().toLocalTime().toString()).append('",')
-    sb.append('"temperature"').append(':').append(random.nextInt(20)).append(',')
-    sb.append('"humidity"').append(':').append(random.nextInt(100))
-    sb.append('}').append('\n\n')
+
+    sb.append(JsonOutput.toJson([
+        when:LocalDateTime.now().toLocalTime().toString(),
+        temperature: random.nextInt(20),
+        humidity: random.nextInt(100)
+    ]))
+    
+    sb.append('\n\n')
 
     res.write(sb.toString())
 
